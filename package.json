@@ -1,0 +1,368 @@
+{
+  "name": "ignite-runner",
+  "displayName": "Ignite Runner",
+  "description": "Run any code in one click — 65+ languages, smart runtime detection, input prompts, timeouts, watch mode, run history and error squiggles.",
+  "version": "1.0.0",
+  "publisher": "your-publisher-id",
+  "license": "MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#120A2E",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers",
+    "Other"
+  ],
+  "keywords": [
+    "run",
+    "runner",
+    "code runner",
+    "execute",
+    "python",
+    "java",
+    "c++",
+    "javascript",
+    "go",
+    "rust",
+    "php",
+    "repl",
+    "snippet",
+    "watch",
+    "stdin",
+    "timeout",
+    "ignite"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/ignite-runner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/ignite-runner/issues"
+  },
+  "homepage": "https://github.com/your-username/ignite-runner#readme",
+  "main": "./extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": false,
+    "untrustedWorkspaces": {
+      "supported": false,
+      "description": "Ignite Runner executes code and shell commands on your machine."
+    }
+  },
+  "scripts": {
+    "test": "node test/smoke.js",
+    "check": "node --check extension.js && node --check src/executors.js && node --check src/runner.js && node --check src/diagnostics.js",
+    "package": "npx --yes @vscode/vsce package --no-dependencies"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "ignite.run",
+        "title": "Run Code",
+        "category": "Ignite",
+        "icon": "$(play)"
+      },
+      {
+        "command": "ignite.stop",
+        "title": "Stop",
+        "category": "Ignite",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "ignite.rerun",
+        "title": "Re-run Last",
+        "category": "Ignite",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "ignite.runWithArgs",
+        "title": "Run with Arguments…",
+        "category": "Ignite"
+      },
+      {
+        "command": "ignite.runWithInput",
+        "title": "Run with Input (stdin)…",
+        "category": "Ignite"
+      },
+      {
+        "command": "ignite.runByLanguage",
+        "title": "Run by Language…",
+        "category": "Ignite"
+      },
+      {
+        "command": "ignite.runCustomCommand",
+        "title": "Run Custom Command…",
+        "category": "Ignite"
+      },
+      {
+        "command": "ignite.toggleWatch",
+        "title": "Toggle Watch Mode (Re-run on Save)",
+        "category": "Ignite",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "ignite.history",
+        "title": "Run History…",
+        "category": "Ignite",
+        "icon": "$(history)"
+      },
+      {
+        "command": "ignite.doctor",
+        "title": "Environment Doctor (check installed runtimes)",
+        "category": "Ignite"
+      },
+      {
+        "command": "ignite.showOutput",
+        "title": "Show Output",
+        "category": "Ignite"
+      },
+      {
+        "command": "ignite.clearOutput",
+        "title": "Clear Output",
+        "category": "Ignite"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "ignite.run",
+          "when": "config.ignite.showRunIconInEditorTitleMenu && !ignite.running && !isInDiffEditor && resourceLangId =~ /./",
+          "group": "navigation@0"
+        },
+        {
+          "command": "ignite.stop",
+          "when": "config.ignite.showStopIconInEditorTitleMenu && ignite.running",
+          "group": "navigation@0"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "ignite.run",
+          "when": "config.ignite.showRunCommandInEditorContextMenu && editorTextFocus",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ignite.runWithInput",
+          "when": "config.ignite.showRunCommandInEditorContextMenu && editorTextFocus",
+          "group": "navigation@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "ignite.run",
+          "when": "config.ignite.showRunCommandInExplorerContextMenu && !explorerResourceIsFolder",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "ignite.run",
+        "key": "ctrl+alt+r",
+        "mac": "cmd+alt+r",
+        "when": "!ignite.running"
+      },
+      {
+        "command": "ignite.stop",
+        "key": "ctrl+alt+x",
+        "mac": "cmd+alt+x"
+      },
+      {
+        "command": "ignite.rerun",
+        "key": "ctrl+alt+shift+r",
+        "mac": "cmd+alt+shift+r"
+      },
+      {
+        "command": "ignite.runWithArgs",
+        "key": "ctrl+alt+a",
+        "mac": "cmd+alt+a"
+      },
+      {
+        "command": "ignite.runByLanguage",
+        "key": "ctrl+alt+shift+l",
+        "mac": "cmd+alt+shift+l"
+      },
+      {
+        "command": "ignite.toggleWatch",
+        "key": "ctrl+alt+w",
+        "mac": "cmd+alt+w"
+      }
+    ],
+    "configuration": {
+      "title": "Ignite Runner",
+      "properties": {
+        "ignite.executorMap": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "description": "Set the executor of each language (merged over the 65+ built-in defaults). A value can be a string or an array of fallback commands tried in order, e.g. {\"python\": \"python3 -u\", \"javascript\": [\"bun run\", \"node\"]}."
+        },
+        "ignite.executorMapByGlob": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "description": "Executor by glob pattern, e.g. {\"pom.xml\": \"cd $dir && mvn clean package\"}."
+        },
+        "ignite.executorMapByFileExtension": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "description": "Executor by file extension, e.g. {\".kts\": \"kotlinc -script\"}."
+        },
+        "ignite.languageIdToFileExtensionMap": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "description": "Language id -> file extension used for snippets (selected code)."
+        },
+        "ignite.defaultLanguage": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Language used when none can be detected (e.g. for untitled files)."
+        },
+        "ignite.customCommand": {
+          "type": "string",
+          "default": "echo Hello",
+          "scope": "resource",
+          "description": "Command used by 'Run Custom Command'."
+        },
+        "ignite.runInTerminal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run in the integrated terminal (fully interactive) instead of the Output panel.",
+          "scope": "resource"
+        },
+        "ignite.clearPreviousOutput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Clear previous output before each run.",
+          "scope": "resource"
+        },
+        "ignite.saveFileBeforeRun": {
+          "type": "boolean",
+          "default": true,
+          "description": "Save the file before running.",
+          "scope": "resource"
+        },
+        "ignite.saveAllFilesBeforeRun": {
+          "type": "boolean",
+          "default": false,
+          "description": "Save all files before running.",
+          "scope": "resource"
+        },
+        "ignite.preserveFocus": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep focus on the editor after running.",
+          "scope": "resource"
+        },
+        "ignite.showExecutionMessage": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the command and the result (exit code + duration) in the output.",
+          "scope": "resource"
+        },
+        "ignite.ignoreSelection": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run the whole file even when text is selected.",
+          "scope": "resource"
+        },
+        "ignite.respectShebang": {
+          "type": "boolean",
+          "default": true,
+          "description": "Honor the #! line of scripts.",
+          "scope": "resource"
+        },
+        "ignite.cwd": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Working directory (supports $workspaceRoot, $dirWithoutTrailingSlash...). Empty = workspace folder."
+        },
+        "ignite.fileDirectoryAsCwd": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use the file's directory as the working directory.",
+          "scope": "resource"
+        },
+        "ignite.timeout": {
+          "type": "number",
+          "default": 0,
+          "scope": "resource",
+          "description": "Kill the process after N seconds (0 = no limit). Great against infinite loops."
+        },
+        "ignite.inputMode": {
+          "type": "string",
+          "default": "smart",
+          "enum": [
+            "smart",
+            "always",
+            "never"
+          ],
+          "scope": "resource",
+          "description": "stdin handling in Output mode. smart = ask for input only if the code reads input; always = always ask; never = no stdin."
+        },
+        "ignite.env": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "description": "Extra environment variables for the process."
+        },
+        "ignite.codeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Run / Run with args / Watch above the entry point.",
+          "scope": "resource"
+        },
+        "ignite.diagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Turn compiler and runtime errors into editor squiggles and Problems entries.",
+          "scope": "resource"
+        },
+        "ignite.historySize": {
+          "type": "number",
+          "default": 25,
+          "scope": "resource",
+          "description": "Number of runs kept in the history."
+        },
+        "ignite.showRunIconInEditorTitleMenu": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Run icon in the editor title bar.",
+          "scope": "resource"
+        },
+        "ignite.showStopIconInEditorTitleMenu": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the Stop icon in the editor title bar while running.",
+          "scope": "resource"
+        },
+        "ignite.showRunCommandInEditorContextMenu": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Run in the editor context menu.",
+          "scope": "resource"
+        },
+        "ignite.showRunCommandInExplorerContextMenu": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Run in the Explorer context menu.",
+          "scope": "resource"
+        }
+      }
+    }
+  }
+}
