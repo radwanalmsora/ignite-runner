@@ -3,7 +3,7 @@
   "displayName": "Ignite Runner",
   "description": "Run any code in one click — 65+ languages, smart runtime detection, input prompts, timeouts, watch mode, run history and error squiggles.",
   "version": "1.0.0",
-  "publisher": "your-publisher-id",
+  "publisher": "RadwanAlmsora",
   "license": "MIT",
   "icon": "media/icon.png",
   "galleryBanner": {
@@ -39,12 +39,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/ignite-runner.git"
+    "url": "https://github.com/radwanalmsora/ignite-runner.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/ignite-runner/issues"
+    "url": "https://github.com/radwanalmsora/ignite-runner/issues"
   },
-  "homepage": "https://github.com/your-username/ignite-runner#readme",
+  "homepage": "https://github.com/radwanalmsora/ignite-runner#readme",
   "main": "./extension.js",
   "extensionKind": [
     "workspace"
